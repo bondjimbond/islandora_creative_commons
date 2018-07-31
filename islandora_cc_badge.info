@@ -1,0 +1,5 @@
+name = Islandora CreativeCommons Badge
+core = 7.x
+description = Displays a CeativeCommons badge.
+dependencies[] = islandora_badges
+package = Islandora Tools

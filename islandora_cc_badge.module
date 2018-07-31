@@ -1,0 +1,110 @@
+<?php
+/**
+ * @file
+ * CC Badges
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function islandora_cc_badge_menu() {
+  return array(
+    'admin/islandora/tools/badges/creativecommons' => array(
+      'title' => 'Creative Commons',
+      'description' => 'Configure Creative Commons badge settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('islandora_cc_badge_admin_form'),
+      'access arguments' => array('administer site configuration'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'includes/admin.form.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function islandora_cc_badge_block_info() {
+  return array(
+    'islandora_cc_badge_badge' => array(
+      'visibility' => BLOCK_VISIBILITY_LISTED,
+      'pages' => 'islandora/object/*',
+      'cache' => DRUPAL_CACHE_PER_PAGE,
+      'info' => t('Islandora CC License Badge'),
+    ),
+  );
+}
+
+function islandora_cc_badge_get_license(AbstractObject $object) {
+  // Gets the rightsstatements.org URI from the configured Solr field.
+  $qp = new islandoraSolrQueryProcessor();
+  $qp->buildQuery(format_string('@field:"@pid"', array(
+    '@field' => 'PID',
+    '@pid' =>"{$object->id}")
+  ));
+  $uri_field = variable_get('islandora_cc_badge_license_field', 'dc.rights');
+  $qp->solrParams['fl'] = implode(', ', array(
+    'PID',
+    $uri_field,
+  ));
+  $qp->solrStart = 0;
+  $qp->solrLimit = 100000;
+  $qp->executeQuery(FALSE);
+  if ($qp->islandoraSolrResult['response']['numFound'] > 0) {
+    if (array_key_exists($uri_field, $qp->islandoraSolrResult['response']['objects']['0']['solr_doc'])) {
+      $license_uri_array = ($qp->islandoraSolrResult['response']['objects']['0']['solr_doc'][$uri_field]);
+      foreach ($license_uri_array as $uri) {
+        if (strpos($uri, 'creativecommons.org')) {
+          $license_uri = $uri;
+        }
+      }
+    }
+  }
+  if (!isset($license_uri)) {
+    return;
+  }
+  else {
+    return $license_uri;
+  }
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function islandora_cc_badge_block_view($delta = '') {
+  module_load_include('inc', 'islandora_badges', 'includes/utilities');
+  $to_render = array();
+
+  if ($delta == 'islandora_cc_badge_badge') {
+    $object = menu_get_object('islandora_object', 2);
+    if ($object) {
+      // Check CModel against Badges configuration.
+      if (islandora_badges_show_for_cmodel($object)) {
+        $license_uri = islandora_cc_badge_get_license($object);
+        if ($license_uri == "https://creativecommons.org/publicdomain/mark/1.0/") {
+          $result_final = '<a href="' . $license_uri . '" target="_blank"><img src="https://licensebuttons.net/p/mark/1.0/88x31.png"></a>';
+        }
+        else {
+          // Set API endpoint URL
+          $url = "http://api.creativecommons.org/rest/1.5";
+          $request_url = $url . '/details?license-uri=' . $license_uri;
+          // Make the request and get results!
+          $result_xml = drupal_http_request($request_url);
+          if (!isset($result_xml->error)) {
+            $result_json = json_encode($result_xml);
+            $result_array = json_decode($result_json, TRUE);
+            $result_data = $result_array['data'];
+            // Trim the result to show just the image and link.
+            $result_final = strstr($result_data, '<a rel="license"');
+            $result_final = strstr($result_final, '<br/>', true);
+          }
+        }
+      }
+    }
+    if (isset($result_final)) {
+      $to_render['content'] = $result_final;
+    }
+  }
+  return $to_render;
+}
