@@ -27,7 +27,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 Configuration path is admin/islandora/tools/badges/creativecommons (Administration > Islandora > Islandora Utility Modules > Islandora Badges Configuration > CC Badge).
 
-Solr field for Creative Commons license URI: Defaults to mods_accessCondition_ms. Multivalued field recommended if working with other accessCondition fields.
+Solr field for Creative Commons license URI: Defaults to `dc.rights`. Multivalued field recommended if working with other accessCondition fields.
 
 ## Troubleshooting/Issues
 
