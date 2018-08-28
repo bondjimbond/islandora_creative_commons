@@ -42,7 +42,7 @@ function islandora_cc_badge_get_license(AbstractObject $object) {
     '@field' => 'PID',
     '@pid' =>"{$object->id}")
   ));
-  $uri_field = variable_get('islandora_cc_badge_license_field', 'dc.rights');
+  $uri_field = variable_get('islandora_cc_badge_license_field', 'mods_accessCondition_ms');
   $qp->solrParams['fl'] = implode(', ', array(
     'PID',
     $uri_field,
