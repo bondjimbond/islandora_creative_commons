@@ -29,6 +29,14 @@ Configuration path is admin/islandora/tools/badges/creativecommons (Administrati
 
 Solr field for Creative Commons license URI: Defaults to `dc.rights`. Multivalued field recommended if working with other accessCondition fields.
 
+## Metadata
+
+You can choose any element for your CreativeCommons URI, so long as it creates a Solr field. The default is dc.rights.
+
+The value of the field must be a URI to the CreativeCommons license. Example from a MODS datastream:
+
+`<accessCondition type="use and reproduction" displayLabel="Creative Commons license">http://creativecommons.org/licenses/by-nc/4.0/</accessCondition>`
+
 ## Troubleshooting/Issues
 
 Having problems or solved a problem? Check out the Islandora google groups for a solution.
