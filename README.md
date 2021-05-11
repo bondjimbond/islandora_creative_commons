@@ -17,7 +17,7 @@ This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
 * [Islandora Solr](https://github.com/islandora/islandora_solr)
-* [Islandora Badges](../../)
+* [Islandora Badges](https://github.com/Islandora/islandora_badges)
 
 ## Installation
 
