@@ -87,8 +87,8 @@ function islandora_cc_badge_block_view($delta = '') {
         }
         else {
           // Set API endpoint URL
-          $url = "http://api.creativecommons.org/rest/1.5";
-          $request_url = $url . '/details?license-uri=' . $license_uri;
+          $url = "https://api.creativecommons.org/rest/1.5";
+          $request_url = $url . '/details?license-uri=' . preg_replace('/https:\/\//','http://',$license_uri);
           // Make the request and get results!
           $result_xml = drupal_http_request($request_url);
           if (!isset($result_xml->error)) {
